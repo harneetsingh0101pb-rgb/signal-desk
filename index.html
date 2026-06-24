@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Signal Desk · Live</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #070a12; color: #e8edf6; font-family: 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 18px 16px 60px; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #141b2a; margin-bottom: 18px; position: sticky; top: 0; background: rgba(7,10,18,0.92); backdrop-filter: blur(8px); z-index: 10; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .bar { width: 9px; height: 22px; background: linear-gradient(180deg,#f7931a,#14f195); border-radius: 2px; }
+  .brand h1 { font-family: 'Space Grotesk', sans-serif; font-size: 16px; letter-spacing: -0.02em; }
+  .brand .sub { font-size: 9px; color: #5b677d; letter-spacing: 0.08em; text-transform: uppercase; }
+  .live { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #46c93a; font-family: 'JetBrains Mono', monospace; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #46c93a; animation: pulse 1.6s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .coins { display: flex; gap: 8px; margin-bottom: 12px; }
+  .coin { flex: 1; padding: 13px; border-radius: 12px; border: 1px solid #18202f; background: #0d1320; color: #8b97ad; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; }
+  .coin .nm { font-size: 10px; opacity: 0.65; margin-left: 5px; font-weight: 500; }
+  .tfs { display: flex; gap: 6px; align-items: center; margin-bottom: 16px; font-size: 11px; }
+  .tflabel { color: #5b677d; text-transform: uppercase; letter-spacing: 0.06em; margin-right: 2px; }
+  .tf { padding: 6px 14px; border-radius: 8px; border: 1px solid #18202f; background: transparent; color: #8b97ad; font-weight: 700; cursor: pointer; font-size: 12px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 9px; margin-bottom: 16px; }
+  .stat { background: #0d1320; border: 1px solid #18202f; border-radius: 11px; padding: 11px; }
+  .stat .l { font-size: 9px; color: #5b677d; text-transform: uppercase; letter-spacing: 0.06em; }
+  .stat .v { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 500; margin-top: 3px; }
+  .card { background: #0d1320; border: 1px solid #18202f; border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+  .card h2 { font-family: 'Space Grotesk', sans-serif; font-size: 13px; color: #aeb9cc; margin-bottom: 10px; font-weight: 700; }
+  canvas { width: 100%; height: auto; display: block; }
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid #18202f; margin-bottom: 16px; }
+  .tab { padding: 9px 15px; border: none; background: none; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 13px; color: #5b677d; border-bottom: 2px solid transparent; }
+  .tab.on { color: #3b9eff; border-bottom-color: #3b9eff; }
+  .scen { display: flex; justify-content: space-between; align-items: center; background: #0d1320; border: 1px solid #18202f; border-radius: 8px; padding: 12px; margin-bottom: 7px; }
+  .scen .lbl { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14px; }
+  .scen .sub { font-size: 10px; color: #5b677d; }
+  .scen .px { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 500; }
+  .scen .pc { font-size: 12px; color: #8b97ad; font-family: 'JetBrains Mono', monospace; }
+  .prow { display: flex; justify-content: space-between; align-items: center; padding: 11px 4px; border-bottom: 1px solid #141b2a; }
+  .pin { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 14px; }
+  .pin label { font-size: 10px; color: #8b97ad; display: block; margin-bottom: 4px; text-transform: uppercase; }
+  .pin select, .pin input { background: #070a12; border: 1px solid #18202f; color: #e8edf6; border-radius: 8px; padding: 9px 12px; font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+  .res3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; }
+  .res3 .b { background: #070a12; border-radius: 8px; padding: 13px; text-align: center; }
+  .res3 .b .l { font-size: 9px; color: #5b677d; text-transform: uppercase; }
+  .res3 .b .v { font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 500; }
+  .note { font-size: 11px; color: #a16207; background: #1a1410; border: 1px solid #422006; border-radius: 8px; padding: 10px; margin-top: 12px; line-height: 1.5; }
+  .foot { font-size: 10px; color: #3d4759; text-align: center; line-height: 1.6; margin-top: 24px; padding-top: 14px; border-top: 1px solid #141b2a; }
+  .err { background: #2a1410; border: 1px solid #e5484d44; border-radius: 8px; padding: 10px; font-size: 12px; color: #f5a623; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="bar"></div>
+      <div><h1>SIGNAL DESK</h1><div class="sub">Live · personal console</div></div>
+    </div>
+    <div class="live"><span class="dot"></span><span id="liveTxt">connecting…</span></div>
+  </div>
+  <div id="errBox"></div>
+  <div class="coins" id="coins"></div>
+  <div class="tfs">
+    <span class="tflabel">Timeframe</span>
+    <button class="tf" data-tf="1m">1m</button>
+    <button class="tf" data-tf="5m">5m</button>
+    <button class="tf" data-tf="1h">1h</button>
+    <button class="tf" data-tf="1D">1D</button>
+    <span style="margin-left:auto;color:#3d4759;font-size:10px;">Crypto.com · auto-refresh</span>
+  </div>
+  <div class="grid4" id="stats"></div>
+  <div class="card"><h2 id="chartTitle">Price</h2><canvas id="chart" width="728" height="200"></canvas></div>
+  <div class="tabs">
+    <button class="tab on" data-tab="outcomes">Outcomes</button>
+    <button class="tab" data-tab="patterns">Patterns</button>
+    <button class="tab" data-tab="contract">Contract</button>
+  </div>
+  <div id="tabBody"></div>
+  <div class="foot">
+    Live prices from Crypto.com's public API. All analysis is real historical math describing the past — it assumes the future resembles history, which it may not. Patterns and percentiles are context, not predictions. One input, never a guarantee. Risk only what you can afford to lose.
+  </div>
+</div>
+<script>
+const COINS = { BTC: { inst: 'BTC_USD', name: 'Bitcoin', color: '#f7931a', dec: 0 }, ETH: { inst: 'ETH_USD', name: 'Ethereum', color: '#627eea', dec: 0 }, SOL: { inst: 'SOL_USD', name: 'Solana', color: '#14f195', dec: 2 } };
+let coin = 'BTC', tf = '1h', tab = 'outcomes', horizon = 6;
+let candles = [];
+let refreshTimer = null;
+const fmt = (n) => '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: COINS[coin].dec, maximumFractionDigits: COINS[coin].dec });
+const pctFmt = (n) => (n >= 0 ? '+' : '') + (n * 100).toFixed(1) + '%';
+async function fetchCandles() {
+  const inst = COINS[coin].inst;
+  const url = `/api/candles?instrument_name=${inst}&timeframe=${tf}&count=200`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    const data = (json.result && json.result.data) || [];
+    candles = data.map(d => ({ open: +d.o, high: +d.h, low: +d.l, close: +d.c, ts: +d.t })).sort((a, b) => a.ts - b.ts);
+    document.getElementById('errBox').innerHTML = '';
+    document.getElementById('liveTxt').textContent = 'live · ' + new Date().toLocaleTimeString();
+    render();
+  } catch (e) {
+    document.getElementById('errBox').innerHTML = '<div class="err">Loading… if this persists the proxy may still be deploying — it auto-retries.</div>';
+    document.getElementById('liveTxt').textContent = 'retrying…';
+  }
+}
+function closes() { return candles.map(c => c.close); }
+function computeStats() {
+  const s = closes(); const n = s.length; if (n < 3) return null;
+  const cur = s[n - 1];
+  const rets = []; for (let i = 1; i < n; i++) rets.push(s[i] / s[i - 1] - 1);
+  const mean = rets.reduce((a, b) => a + b, 0) / rets.length;
+  const sd = Math.sqrt(rets.reduce((a, r) => a + (r - mean) ** 2, 0) / rets.length);
+  const h = Math.min(horizon, Math.floor(n / 3));
+  const hRets = []; for (let i = 0; i + h < n; i++) hRets.push(s[i + h] / s[i] - 1);
+  const sorted = [...hRets].sort((a, b) => a - b);
+  const q = (p) => sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] : 0;
+  const ppy = tf === '1D' ? 365 : tf === '1h' ? 24 * 365 : tf === '5m' ? 12 * 24 * 365 : 60 * 24 * 365;
+  return { cur, sd, annVol: sd * Math.sqrt(ppy), hRets, h, q, pUp: hRets.length ? hRets.filter(r => r > 0).length / hRets.length : 0, change: cur / s[0] - 1 };
+}
+function detectPatterns() {
+  const out = [];
+  const body = c => Math.abs(c.close - c.open), rng = c => c.high - c.low;
+  const uw = c => c.high - Math.max(c.open, c.close), lw = c => Math.min(c.open, c.close) - c.low;
+  const bull = c => c.close > c.open;
+  for (let i = 1; i < candles.length; i++) {
+    const c = candles[i], p = candles[i - 1], r = rng(c) || 1e-9, b = body(c);
+    if (b / r < 0.1) out.push({ i, name: 'Doji', dir: 'neutral' });
+    else if (lw(c) > 2 * b && uw(c) < b) out.push({ i, name: 'Hammer', dir: 'bullish' });
+    else if (uw(c) > 2 * b && lw(c) < b) out.push({ i, name: 'Shooting Star', dir: 'bearish' });
+    else if (bull(c) && !bull(p) && c.close >= p.open && c.open <= p.close) out.push({ i, name: 'Bullish Engulfing', dir: 'bullish' });
+    else if (!bull(c) && bull(p) && c.open >= p.close && c.close <= p.open) out.push({ i, name: 'Bearish Engulfing', dir: 'bearish' });
+  }
+  return out;
+}
+function hitRates() {
+  const pats = detectPatterns(), agg = {};
+  for (const pt of pats) {
+    if (pt.i + 1 >= candles.length) continue;
+    const nx = candles[pt.i + 1], up = nx.close > nx.open;
+    if (!agg[pt.name]) agg[pt.name] = { dir: pt.dir, total: 0, up: 0 };
+    agg[pt.name].total++; if (up) agg[pt.name].up++;
+  }
+  return agg;
+}
+function drawChart() {
+  const cv = document.getElementById('chart'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+  const s = closes(); if (s.length < 2) return;
+  const pad = { l: 8, r: 54, t: 10, b: 18 };
+  const min = Math.min(...s), max = Math.max(...s), span = (max - min) || 1;
+  const x = i => pad.l + (i / (s.length - 1)) * (W - pad.l - pad.r);
+  const y = v => pad.t + (1 - (v - min) / span) * (H - pad.t - pad.b);
+  ctx.strokeStyle = '#18202f'; ctx.fillStyle = '#3d4759'; ctx.font = '10px JetBrains Mono'; ctx.lineWidth = 1;
+  for (let g = 0; g <= 3; g++) { const v = min + (span * g / 3), yy = y(v); ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(W - pad.r, yy); ctx.stroke(); ctx.fillText((COINS[coin].dec ? '$' + v.toFixed(0) : '$' + (v / 1000).toFixed(1) + 'k'), W - pad.r + 4, yy + 3); }
+  ctx.strokeStyle = COINS[coin].color; ctx.lineWidth = 2; ctx.beginPath();
+  s.forEach((v, i) => { const xx = x(i), yy = y(v); i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }); ctx.stroke();
+  const li = s.length - 1; ctx.fillStyle = COINS[coin].color; ctx.beginPath(); ctx.arc(x(li), y(s[li]), 3, 0, 7); ctx.fill();
+}
+function render() {
+  document.getElementById('coins').innerHTML = Object.keys(COINS).map(c =>
+    `<button class="coin" data-coin="${c}" style="border-color:${coin === c ? COINS[c].color : '#18202f'};background:${coin === c ? COINS[c].color + '18' : '#0d1320'};color:${coin === c ? COINS[c].color : '#8b97ad'}">${c}<span class="nm">${COINS[c].name}</span></button>`).join('');
+  document.querySelectorAll('.tf').forEach(b => b.style.cssText = b.dataset.tf === tf ? 'background:#3b9eff;color:#070a12;border-color:#3b9eff' : '');
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  const st = computeStats();
+  const unit = { '1m': 'min', '5m': '5-min', '1h': 'hour', '1D': 'day' }[tf];
+  document.getElementById('chartTitle').textContent = coin + ' · ' + tf + (candles.length ? ' · ' + candles.length + ' candles' : '');
+  if (st) {
+    document.getElementById('stats').innerHTML = [
+      ['Price', fmt(st.cur), COINS[coin].color],
+      ['Change', pctFmt(st.change), st.change >= 0 ? '#46c93a' : '#e5484d'],
+      ['Ann. Vol', (st.annVol * 100).toFixed(0) + '%', '#f5a623'],
+      ['Up rate', (st.pUp * 100).toFixed(0) + '%', '#3b9eff'],
+    ].map(([l, v, c]) => `<div class="stat"><div class="l">${l}</div><div class="v" style="color:${c}">${v}</div></div>`).join('');
+  }
+  drawChart();
+  const body = document.getElementById('tabBody');
+  if (!st) { body.innerHTML = '<div class="card">Loading live data…</div>'; return; }
+  if (tab === 'outcomes') {
+    const scen = [['Very Bearish', '5th', st.q(0.05), '#e5484d'], ['Bearish', '25th', st.q(0.25), '#f5a623'], ['Most Likely', 'median', st.q(0.5), '#3b9eff'], ['Bullish', '75th', st.q(0.75), '#7cc844'], ['Very Bullish', '95th', st.q(0.95), '#46c93a']];
+    body.innerHTML = `<div style="font-size:13px;color:#8b97ad;margin-bottom:14px">Live: ${coin} rose in <b style="color:${st.pUp >= 0.5 ? '#46c93a' : '#e5484d'}">${(st.pUp * 100).toFixed(0)}%</b> of ${st.h}-${unit} windows.</div>` +
+      scen.map(([l, sub, r, c]) => `<div class="scen" style="border-left:3px solid ${c}"><div><div class="lbl">${l}</div><div class="sub">${sub} percentile</div></div><div style="text-align:right"><div class="px" style="color:${c}">${fmt(st.cur * (1 + r))}</div><div class="pc">${pctFmt(r)}</div></div></div>`).join('');
+  } else if (tab === 'patterns') {
+    const pats = detectPatterns(), rates = hitRates();
+    const recent = pats.slice(-6).reverse();
+    let html = `<div style="font-size:13px;color:#8b97ad;margin-bottom:14px;line-height:1.5">Patterns in the live candles, with the <b>honest hit-rate</b> — how often each was actually followed by an up-candle in this data.</div>`;
+    html += `<div style="font-size:10px;color:#5b677d;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Most recent</div>`;
+    html += recent.length ? recent.map(pt => { const col = pt.dir === 'bullish' ? '#46c93a' : pt.dir === 'bearish' ? '#e5484d' : '#8b97ad'; const ago = candles.length - 1 - pt.i; return `<div class="scen" style="border-left:3px solid ${col}"><div><b style="font-family:Space Grotesk">${pt.name}</b> <span style="font-size:10px;color:${col};text-transform:uppercase;margin-left:6px">${pt.dir}</span></div><span style="font-size:11px;color:#5b677d;font-family:JetBrains Mono">${ago === 0 ? 'last' : ago + ' ago'}</span></div>`; }).join('') : '<div style="color:#5b677d;font-size:13px;padding:8px">No clear patterns right now.</div>';
+    html += `<div style="font-size:10px;color:#5b677d;text-transform:uppercase;letter-spacing:0.06em;margin:18px 0 8px">Hit-rates (this data)</div><div class="card" style="padding:4px 0;margin-bottom:0">`;
+    const ent = Object.entries(rates);
+    html += ent.length ? ent.map(([nm, r], i) => { const rate = r.up / r.total, col = r.dir === 'bullish' ? '#46c93a' : r.dir === 'bearish' ? '#e5484d' : '#8b97ad'; return `<div class="prow" style="${i === ent.length - 1 ? 'border-bottom:none' : ''}"><div><b style="font-size:13px">${nm}</b> <span style="font-size:9px;color:${col};text-transform:uppercase;margin-left:6px">${r.dir}</span></div><div style="text-align:right"><span style="font-family:JetBrains Mono;font-size:15px;color:${rate >= 0.5 ? '#46c93a' : '#e5484d'}">${(rate * 100).toFixed(0)}% up</span> <span style="font-size:11px;color:#5b677d;margin-left:8px">n=${r.total}</span></div></div>`; }).join('') : '<div style="color:#5b677d;font-size:13px;padding:12px 16px">Not enough patterns yet.</div>';
+    html += `</div><div class="note">Samples here can be small, so percentages swing. Studies find candlestick patterns rarely beat a coin-flip after costs. Treat a pattern as context near a key level, never a standalone signal.</div>`;
+    body.innerHTML = html;
+  } else if (tab === 'contract') {
+    body.innerHTML = `<div class="card" style="background:linear-gradient(135deg,#0d1320,#0a0f1a)"><div style="font-family:Space Grotesk;font-size:15px;font-weight:700">Contract Probability</div><div style="font-size:12px;color:#5b677d;margin-bottom:16px" id="cQ">"Will ${coin} be above ___ in ${st.h} ${unit}s?"</div><div class="pin"><div><label>Direction</label><select id="cDir"><option value="above">At or above</option><option value="below">At or below</option></select></div><div><label>Target ($)</label><input id="cTgt" type="number" placeholder="${Math.round(st.cur)}" /></div></div><div id="cRes" style="color:#5b677d;font-size:13px;text-align:center;padding:20px">Enter a target price.</div></div>`;
+    const calc = () => {
+      const t = parseFloat(document.getElementById('cTgt').value), dir = document.getElementById('cDir').value;
+      document.getElementById('cQ').textContent = `"Will ${coin} be ${dir} ${t ? fmt(t) : '___'} in ${st.h} ${unit}s?"`;
+      if (!t || t <= 0) { document.getElementById('cRes').innerHTML = 'Enter a target price.'; return; }
+      const req = t / st.cur - 1;
+      const hits = dir === 'above' ? st.hRets.filter(r => r >= req).length : st.hRets.filter(r => r <= req).length;
+      const prob = st.hRets.length ? hits / st.hRets.length : 0;
+      document.getElementById('cRes').style.cssText = '';
+      document.getElementById('cRes').innerHTML = `<div class="res3"><div class="b"><div class="l">Historical Prob</div><div class="v" style="color:#3b9eff">${(prob * 100).toFixed(0)}%</div></div><div class="b"><div class="l">Required Move</div><div class="v" style="color:${req >= 0 ? '#46c93a' : '#e5484d'}">${pctFmt(req)}</div></div><div class="b"><div class="l">Fair Price</div><div class="v" style="color:#f5a623">${(prob * 100).toFixed(0)}¢</div></div></div><div style="margin-top:14px;font-size:12px;color:#5b677d;line-height:1.5">Below ${(prob * 100).toFixed(0)}¢ → possibly underpriced (lean YES); above → possibly overpriced (lean NO). From ${st.hRets.length} live ${st.h}-${unit} windows.</div>`;
+    };
+    document.getElementById('cTgt').addEventListener('input', calc);
+    document.getElementById('cDir').addEventListener('change', calc);
+  }
+}
+document.addEventListener('click', e => {
+  const cb = e.target.closest('[data-coin]'); if (cb) { coin = cb.dataset.coin; fetchCandles(); return; }
+  const tb = e.target.closest('[data-tf]'); if (tb) { tf = tb.dataset.tf; horizon = tf === '1D' ? 30 : 6; fetchCandles(); return; }
+  const tab2 = e.target.closest('[data-tab]'); if (tab2) { tab = tab2.dataset.tab; render(); return; }
+});
+fetchCandles();
+refreshTimer = setInterval(fetchCandles, 10000);
+</script>
+</body>
+</html>
